@@ -29,14 +29,35 @@ void app_main(void)
 
     while (1) {
         // Realizar la lectura
-        esp_err_t ret = adc_oneshot_read(adc1_handle, ADC_CHANNEL_9, &lectura_raw);
-        if (ret == ESP_OK) {
-            ESP_LOGI(TAG, "Humedad Raw: %d", lectura_raw);
+        int suma_lecturas = 0;
+        int num_muestras = 10;
+        int promedio_raw = 0;
+        int successful_reads = 0; // Contador para lecturas exitosas
+
+        // Tomamos 10 lecturas
+        for (int i = 0; i < num_muestras; i++) {
+            int lectura_temp = 0;
+            esp_err_t ret = adc_oneshot_read(adc1_handle, ADC_CHANNEL_9, &lectura_temp);
+            if (ret == ESP_OK) {
+                suma_lecturas += lectura_temp;
+                successful_reads++;
+            } else {
+                ESP_LOGE(TAG, "Error al leer ADC en muestra %d: %s", i, esp_err_to_name(ret));
+            }
+            
+            // Una micro-pausa de 10ms entre lecturas da tiempo al hardware a estabilizarse
+            vTaskDelay(pdMS_TO_TICKS(10)); 
+        }
+
+        // Calculamos el valor suavizado
+        if (successful_reads > 0) {
+            promedio_raw = suma_lecturas / successful_reads;
+            ESP_LOGI(TAG, "Humedad Promedio Raw (%d muestras): %d", successful_reads, promedio_raw);
         } else {
-            ESP_LOGE(TAG, "Error al leer ADC: %s", esp_err_to_name(ret));
+            ESP_LOGE(TAG, "No se pudo obtener ninguna lectura de ADC para el promedio.");
         }
 
         // Pausa de 5 segundos
-        vTaskDelay(5000 / portTICK_PERIOD_MS);
+        vTaskDelay(pdMS_TO_TICKS(5000));
     }
 }
