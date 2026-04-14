@@ -19,13 +19,11 @@ void app_main(void)
     // Configurar el canal 
     adc_oneshot_chan_cfg_t config = {
         .bitwidth = ADC_BITWIDTH_DEFAULT, // Resolución de 12 bits
-        .atten = ADC_ATTEN_DB_12, // Rango Completo de voltaje (0-3.3V)
+        .atten = ADC_ATTEN_DB_12,         // Rango Completo de voltaje (0-3.3V)
     };
     adc_oneshot_config_channel(adc1_handle, ADC_CHANNEL_9, &config);
 
     ESP_LOGI(TAG, "Cerebro iniciado. ADC configurado en GPIO10.");
-
-    int lectura_raw = 0;
 
     while (1) {
         // Realizar la lectura
@@ -49,15 +47,30 @@ void app_main(void)
             vTaskDelay(pdMS_TO_TICKS(10)); 
         }
 
-        // Calculamos el valor suavizado
+        // Calculamos el valor suavizado y aplicamos la lógica de interpolación
         if (successful_reads > 0) {
             promedio_raw = suma_lecturas / successful_reads;
-            ESP_LOGI(TAG, "Humedad Promedio Raw (%d muestras): %d", successful_reads, promedio_raw);
+            
+            // --- CONVERSIÓN A PORCENTAJE ---
+            // 1. Normalización Invertida (Matemática con floats)
+            float calculo = 100.0 - (((float)promedio_raw - 1300.0) / (3350.0 - 1300.0) * 100.0);
+            int porcentaje = (int)calculo; 
+
+            // 2. Clamping (Barreras lógicas de seguridad)
+            if (porcentaje > 100) {
+                porcentaje = 100;
+            } else if (porcentaje < 0) {
+                porcentaje = 0;
+            }
+
+            // 3. Reporte final
+            ESP_LOGI(TAG, "Raw Promediado: %d | Humedad Real: %d%%", promedio_raw, porcentaje);
+            
         } else {
             ESP_LOGE(TAG, "No se pudo obtener ninguna lectura de ADC para el promedio.");
         }
 
-        // Pausa de 5 segundos
+        // Pausa de 5 segundos entre lecturas
         vTaskDelay(pdMS_TO_TICKS(5000));
     }
 }
