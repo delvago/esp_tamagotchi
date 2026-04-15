@@ -132,11 +132,18 @@ httpd_handle_t start_webserver(void)
     return server;
 }
 
-void start_mdns_service(void){
+void start_mdns_service(void)
+{
+    // Inicializamos el servicio mDNS
     ESP_ERROR_CHECK(mdns_init());
-    ESP_ERROR_CHECK(mdns_hostname_set(("tamagotchi"));
+    
+    // Configuramos el nombre de host (lo que va antes del .local)
+    ESP_ERROR_CHECK(mdns_hostname_set("tamagotchi"));
+    
+    // Configuramos un nombre descriptivo para la red
     ESP_ERROR_CHECK(mdns_instance_name_set("Tamagotchi Botanico AI"));
-    ESP_LOGI(TAG, "Servicio mDNS iniciado. Ahora puedes acceder en: http://tamagotchi.local")
+    
+    ESP_LOGI(TAG, "Servicio mDNS iniciado. Ahora puedes acceder en: http://tamagotchi.local");
 }
 
 
