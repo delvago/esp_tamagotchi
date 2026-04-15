@@ -8,9 +8,15 @@
 #include "esp_event.h"
 #include "nvs_flash.h"
 #include "esp_netif.h"
+#include "esp_http_server.h"
+#include "cJSON.h"
+
 
 //  Log
 static const char *TAG = "BOTANICO_ADC";
+
+// Variable global 
+volatile int humedad_global = 0;
 
 // Credenciales WiFi
 #define WIFI_SSID "Margomez"
@@ -72,6 +78,59 @@ void wifi_init_sta(void){
     ESP_LOGI(TAG, "Inicialización de Wi-Fi terminada.");
 }
 
+// --- MANEJADOR DEL ENDPOINT ("API" de Tamagotchi) ---
+esp_err_t get_estado_planta_handler(httpd_req_t *req)
+{
+    // 1. Creamos un objeto JSON vacío
+    cJSON *root = cJSON_CreateObject();
+    
+    // 2. Le inyectamos la humedad actual
+    cJSON_AddNumberToObject(root, "humedad_porcentaje", humedad_global);
+    
+    // Podemos añadir lógica básica de estado para ayudar al LLM
+    if (humedad_global < 30) {
+        cJSON_AddStringToObject(root, "alerta", "CRITICA: Requiere agua inmediatamente");
+    } else if (humedad_global < 60) {
+        cJSON_AddStringToObject(root, "alerta", "ADVERTENCIA: Tierra secándose");
+    } else {
+        cJSON_AddStringToObject(root, "alerta", "ESTABLE: Humedad óptima");
+    }
+
+    // 3. Convertimos el JSON a texto para enviarlo por Wi-Fi
+    const char *respuesta_json = cJSON_Print(root);
+    
+    // 4. Enviamos la respuesta HTTP
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, respuesta_json, strlen(respuesta_json));
+
+    // 5. Limpiamos la memoria para evitar fugas (Memory Leaks)
+    free((void *)respuesta_json);
+    cJSON_Delete(root);
+    
+    return ESP_OK;
+}
+
+// --- FUNCIÓN PARA ARRANCAR EL SERVIDOR ---
+httpd_handle_t start_webserver(void)
+{
+    httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+    httpd_handle_t server = NULL;
+
+    if (httpd_start(&server, &config) == ESP_OK) {
+        ESP_LOGI(TAG, "Servidor HTTP iniciado.");
+
+        // Definimos la ruta de la API: http://[IP_DEL_ESP32]/estado
+        httpd_uri_t uri_estado = {
+            .uri       = "/estado",
+            .method    = HTTP_GET,
+            .handler   = get_estado_planta_handler,
+            .user_ctx  = NULL
+        };
+        httpd_register_uri_handler(server, &uri_estado);
+    }
+    return server;
+}
+
 
 void app_main(void)
 {
@@ -89,6 +148,8 @@ void app_main(void)
     wifi_init_sta();
 
     vTaskDelay(pdMS_TO_TICKS(5000));
+
+    start_webserver();
 
     // Configuración del ADC
     adc_oneshot_unit_handle_t adc1_handle;
@@ -144,6 +205,9 @@ void app_main(void)
             } else if (porcentaje < 0) {
                 porcentaje = 0;
             }
+
+            // Actualizamos la variable global para que otros procesos la vean
+            humedad_global = porcentaje;
 
             // 3. Reporte final
             ESP_LOGI(TAG, "Raw Promediado: %d | Humedad Real: %d%%", promedio_raw, porcentaje);
