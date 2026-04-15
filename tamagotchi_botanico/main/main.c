@@ -10,6 +10,7 @@
 #include "esp_netif.h"
 #include "esp_http_server.h"
 #include "cJSON.h"
+#include "mdns.h"
 
 
 //  Log
@@ -131,6 +132,13 @@ httpd_handle_t start_webserver(void)
     return server;
 }
 
+void start_mdns_service(void){
+    ESP_ERROR_CHECK(mdns_init());
+    ESP_ERROR_CHECK(mdns_hostname_set(("tamagotchi"));
+    ESP_ERROR_CHECK(mdns_instance_name_set("Tamagotchi Botanico AI"));
+    ESP_LOGI(TAG, "Servicio mDNS iniciado. Ahora puedes acceder en: http://tamagotchi.local")
+}
+
 
 void app_main(void)
 {
@@ -150,6 +158,7 @@ void app_main(void)
     vTaskDelay(pdMS_TO_TICKS(5000));
 
     start_webserver();
+    start_mdns_service();
 
     // Configuración del ADC
     adc_oneshot_unit_handle_t adc1_handle;
