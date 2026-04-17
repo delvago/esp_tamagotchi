@@ -3,15 +3,19 @@ import requests
 from dotenv import load_dotenv
 from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
-from langgraph.prebuild import create_react_agent
-from langchain_core.message import HumanMessage
+from langchain.agents import create_agent
+from langchain_core.messages import HumanMessage
 
 load_dotenv()
 
 @tool
-def consultar_sensor_planta() - > str:
+def consultar_sensor_planta() -> str:
+    """
+    Útil cuando necesitas saber el estado actual de humedad de la planta.
+    Se conecta al microcontrolador ESP32 mediante la red local.
+    """
     try:
-        respuesta = request.get("http://tamagotchi.local/estado", timeout=5)
+        respuesta = requests.get("http://tamagotchi.local/estado", timeout=5)
         return respuesta.text
     except requests.exceptions.RequestException as e:
         return f"Error físico: No se pudo contactar al sensor: {e}"
@@ -28,7 +32,7 @@ Si la humedad baja del 30%, tu tono debe ser de urgencia. Si es superior al 60% 
 Sé conciso y técnico en tu respuesta.
 """
 
-agente = create_react_agent(llm, herramientas, state_modifier=instrucciones_sistema)
+agente = create_agent(llm, herramientas, system_prompt=instrucciones_sistema)
 
 
 def evaluar_planta():
