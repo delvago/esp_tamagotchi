@@ -87,15 +87,6 @@ esp_err_t get_estado_planta_handler(httpd_req_t *req)
     
     // 2. Le inyectamos la humedad actual
     cJSON_AddNumberToObject(root, "humedad_porcentaje", humedad_global);
-    
-    // Podemos añadir lógica básica de estado para ayudar al LLM
-    if (humedad_global < 30) {
-        cJSON_AddStringToObject(root, "alerta", "CRITICA: Requiere agua inmediatamente");
-    } else if (humedad_global < 60) {
-        cJSON_AddStringToObject(root, "alerta", "ADVERTENCIA: Tierra secándose");
-    } else {
-        cJSON_AddStringToObject(root, "alerta", "ESTABLE: Humedad óptima");
-    }
 
     // 3. Convertimos el JSON a texto para enviarlo por Wi-Fi
     const char *respuesta_json = cJSON_Print(root);
