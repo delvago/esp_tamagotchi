@@ -79,7 +79,6 @@ Desktop.ini
 *.sln.docstates # Visual Studio
 
 # .env
-.env
-tamagotchi_botanico/agent/.env
 agent/.env
+**/.env
 .env
