@@ -14,7 +14,7 @@ from langchain_openai import ChatOpenAI
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 os.chdir(os.path.join(os.path.dirname(__file__), ".."))
 
-load_dotenv()
+load_dotenv(dotenv_path="../agent/.env")
 
 app = FastAPI(title="Tamagotchi Botánico API", version="1.0.0")
 
