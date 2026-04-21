@@ -29,7 +29,8 @@ def registrar_en_archivo_csv(humedad: int, diagnostico: str) -> str:
     Útil para guardar el historial de salud de la planta.
     Debe llamarse despúes de obtener la humedad y el diagnóstico del LLM.
     """
-    archivo = "historial_planta.csv"
+    os.makedirs("data", exist_ok=True)
+    archivo = "data/historial_planta.csv"
     cabecera = ["Fecha", "Humedad (%)", "Diagnóstico"]
     
     existe = os.path.exists(archivo)
