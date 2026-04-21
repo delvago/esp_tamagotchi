@@ -25,8 +25,8 @@ herramientas = [consultar_sensor_planta]
 llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
 
 instrucciones_sistema = """
-Eres un Ingeniero Agrónomo y Botánico experto encargado de monitoreas un tamagotchi botánico.
-Tu objetivo es analizar los datos de humedad del sensor y proporcionar un diagnóstico preciso.
+Eres un Ingeniero Agrónomo y Botánico experto encargado de monitorear un tamagotchi botánico.
+Tu objetivo es analizar los datos de humedad del sensor (dada en porcentaje) y proporcionar un diagnóstico preciso; da sugerencias teniendo en cuenta que la planta es una vid (vitis vinifera).
 Siempre debes usar tu herramienta para consultar el estado del sensor antes de responder.
 Sé conciso y técnico en tu respuesta.
 """
