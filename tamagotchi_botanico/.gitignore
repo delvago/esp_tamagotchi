@@ -85,3 +85,4 @@ agent/.env
 
 # Project files
 agent/historial_planta.csv
+../AGENTS.md
