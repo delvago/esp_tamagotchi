@@ -223,7 +223,7 @@ void app_main(void)
             ESP_LOGE(TAG, "No se pudo obtener ninguna lectura de ADC para el promedio.");
         }
 
-        // Pausa de 5 segundos entre lecturas
-        vTaskDelay(pdMS_TO_TICKS(60000));
+        // Pausa de 10 minutos entre lecturas
+        vTaskDelay(pdMS_TO_TICKS(600000));
     }
 }
