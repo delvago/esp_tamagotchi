@@ -84,6 +84,5 @@ agent/.env
 .env
 
 # Project files
-data/historial_planta.csv
-data/humedad_hora.csv
-../AGENTS.md
+agent/data/historial_planta.csv
+agent/data/humedad_hora.csv
