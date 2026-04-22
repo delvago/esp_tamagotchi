@@ -32,7 +32,15 @@ python agent/agente_botanico.py
 - WiFi credentials hardcoded in `main.c:23-24`
 - Agent expects grapevine (vitis vinifera) in system prompt
 - CSV output: `data/historial_planta.csv` (moved from CWD)
+- Humidity log for crontab: `data/humedad_hora.csv`
 - Build artifacts in `tamagotchi_botanico/build/`
+
+## Cron Script (Raspberry)
+
+```bash
+# Run every hour from Raspberry
+0 * * * * cd /home/pi/tamagotchi_botanico && python scripts/registrar_humedad.py >> logs/cron.log 2>&1
+```
 
 ## FastAPI Frontend
 

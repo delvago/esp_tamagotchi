@@ -137,6 +137,21 @@ curl -X POST http://localhost:8000/api/evaluar
 }
 ```
 
+## Crontab (Raspberry)
+
+Script para registro hourly sin IA. Ejecutar cada hora:
+
+```bash
+0 * * * * cd /home/pi/tamagotchi_botanico && python scripts/registrar_humedad.py >> logs/cron.log 2>&1
+```
+
+Salida: `data/humedad_hora.csv`
+
+| Fecha | Humedad (%) |
+|-------|-----------|
+| 2026-04-22 10:00:00 | 65 |
+| 2026-04-22 11:00:00 | 62 |
+
 ## Estructura del Proyecto
 
 ```
@@ -148,8 +163,11 @@ esp_tamagotchi/
 │   │   └── agente_botanico.py  # Agente LangChain CLI
 │   ├── frontend/
 │   │   └── main.py      # FastAPI frontend
+│   ├── scripts/
+│   │   └── registrar_humedad.py  # Crontab script
 │   ├── data/
-│   │   └── historial_planta.csv  # Historial de evaluaciones
+│   │   ├── historial_planta.csv  # Historial del agente IA
+│   │   └── humedad_hora.csv     # Registro hourly
 │   ├── requirements.txt
 │   └── CMakeLists.txt
 ├── AGENTS.md
